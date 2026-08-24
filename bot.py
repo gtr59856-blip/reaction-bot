@@ -10,7 +10,8 @@ from telegram.ext import (
     filters,
 )
 
-BOT_TOKEN = os.getenv("8936841134:AAHPjQQrq_cu-nK61kZvPbyQf2RPh9WcL0g")
+# os.getenv() အစား Token ကုဒ်ကို တိုက်ရိုက် စာသား (String) အဖြစ် မှန်ကန်စွာ ပြင်ဆင်ထားပါသည်
+BOT_TOKEN = "8936841134:AAHPjQQrq_cu-nK61kZvPbyQf2RPh9WcL0g"
 
 REACTIONS = ["👍", "❤️", "🔥", "🥰", "👏", "😁", "🎉"]
 
