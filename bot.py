@@ -1,5 +1,6 @@
 import os
 import random
+
 from telegram import Update, ReactionTypeEmoji
 from telegram.ext import (
     Application,
@@ -9,7 +10,7 @@ from telegram.ext import (
     filters,
 )
 
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+BOT_TOKEN = os.getenv("8936841134:AAHPjQQrq_cu-nK61kZvPbyQf2RPh9WcL0g")
 
 REACTIONS = ["👍", "❤️", "🔥", "🥰", "👏", "😁", "🎉"]
 
@@ -21,60 +22,53 @@ async def react_to_message(chat_id, message_id, context):
         await context.bot.set_message_reaction(
             chat_id=chat_id,
             message_id=message_id,
-            reaction=[ReactionTypeEmoji(emoji)],
+            reaction=[ReactionTypeEmoji(emoji=emoji)],
         )
-        print(f"Reaction: {emoji}")
-
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Reaction error: {e}")
 
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not update.effective_message:
-        return
-
-    await react_to_message(
-        update.effective_chat.id,
-        update.effective_message.message_id,
-        context,
-    )
+async def group_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message:
+        await react_to_message(
+            update.message.chat_id,
+            update.message.message_id,
+            context,
+        )
 
 
-async def handle_channel_post(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE,
-):
-    if not update.channel_post:
-        return
-
-    await react_to_message(
-        update.channel_post.chat.id,
-        update.channel_post.message_id,
-        context,
-    )
+async def channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.channel_post:
+        await react_to_message(
+            update.channel_post.chat_id,
+            update.channel_post.message_id,
+            context,
+        )
 
 
 def main():
+    if not BOT_TOKEN:
+        raise RuntimeError("TELEGRAM_BOT_TOKEN is not set")
+
     app = Application.builder().token(BOT_TOKEN).build()
 
+    # Group / Supergroup
     app.add_handler(
         MessageHandler(
-            filters.ALL,
-            handle_message,
+            filters.ALL & ~filters.StatusUpdate.ALL,
+            group_message,
         )
     )
 
+    # Channel
     app.add_handler(
-        ChannelPostHandler(handle_channel_post)
+        ChannelPostHandler(channel_post)
     )
 
-    print("Reaction Bot Started...")
+    print("Reaction Bot is running...")
 
     app.run_polling(
-        allowed_updates=[
-            "message",
-            "channel_post",
-        ]
+        allowed_updates=["message", "channel_post"]
     )
 
 
