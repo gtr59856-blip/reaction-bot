@@ -16,7 +16,6 @@ REACTIONS = ["👍", "❤️", "🔥", "🥰", "👏", "😁", "🎉"]
 
 async def react_to_message(chat_id, message_id, context):
     emoji = random.choice(REACTIONS)
-
     try:
         await context.bot.set_message_reaction(
             chat_id=chat_id,
@@ -37,7 +36,7 @@ async def group_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # ချန်နယ်ထဲမှာ ပို့စ်အသစ်တင်တိုင်း Reaction ပေးရန် စစ်ဆေးခြင်း
+    # ချန်နယ်ပို့စ် တင်လိုက်သည့်အခါ သေချာပေါက် အလုပ်လုပ်စေရန်
     if update.channel_post:
         await react_to_message(
             update.channel_post.chat_id,
@@ -50,9 +49,10 @@ def main():
     if not BOT_TOKEN:
         raise RuntimeError("TELEGRAM_BOT_TOKEN is not set")
 
+    # ချန်နယ်အတွက် သီးသန့် အလုပ်လုပ်နိုင်ရန် အခြေခံမှစ၍ ပြင်ဆင်ထားပါသည်
     app = Application.builder().token(BOT_TOKEN).build()
 
-    # Group / Supergroup အတွက်
+    # 1. Group / Supergroup ဟန်းဒလာ
     app.add_handler(
         MessageHandler(
             filters.ALL & ~filters.StatusUpdate.ALL,
@@ -60,18 +60,20 @@ def main():
         )
     )
 
-    # 🌟 ချန်နယ်ပို့စ်များကို သေချာပေါက်ဖတ်နိုင်ရန် UpdateType ကိုပါ ထည့်သွင်းပြင်ဆင်ထားပါသည်
+    # 2. Channel ပို့စ်များအတွက် ဟန်းဒလာ (Filter ကို ပိုမိုတိကျအောင် ပြောင်းလဲထားပါသည်)
     app.add_handler(
         MessageHandler(
-            filters.ChatType.CHANNEL | filters.UpdateType.CHANNEL_POST,
+            filters.UpdateType.CHANNEL_POST,
             channel_post,
         )
     )
 
     print("Reaction Bot is running...")
 
+    # 🌟 အဓိကအချက် - drop_pending_updates ကို သုံးပြီး စနစ်ဟောင်းများကို ရှင်းလင်းကာ ချန်နယ်အတွက် လမ်းကြောင်းဖွင့်ပေးခြင်း
     app.run_polling(
-        allowed_updates=["message", "channel_post"]
+        allowed_updates=["message", "channel_post"],
+        drop_pending_updates=True
     )
 
 
