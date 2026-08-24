@@ -11,7 +11,7 @@ from telegram.ext import (
 
 BOT_TOKEN = "8936841134:AAHPjQQrq_cu-nK61kZvPbyQf2RPh9WcL0g"
 
-REACTIONS = ["👍", "❤️", "🔥", "🥰", "👏", "😁", "🎉"]
+REACTIONS = ["👀", "🐉", "⚡️", "🥰", "👏", "😁", "🎉"]
 
 
 async def react_to_message(chat_id, message_id, context):
