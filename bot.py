@@ -9,7 +9,7 @@ from telegram.ext import (
     filters,
 )
 
-BOT_TOKEN = "8936841134:AAHPjQQrq_cu-nK61kZvPbyQf2RPh9WcL0g"
+BOT_TOKEN = "8786728145:AAHRbZUREiX5prYxMrx7yl-AycyA95p2xH0"
 
 REACTIONS = ["👀", "🐉", "⚡️", "🥰", "👏", "😁", "🎉"]
 
