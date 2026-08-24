@@ -4,7 +4,7 @@ import random
 from telegram import Update, ReactionTypeEmoji
 from telegram.ext import (
     Application,
-    MessageHandler,  # ChannelPostHandler အစား ဤနေရာတွင် MessageHandler ကိုပဲ သုံးပါမည်
+    MessageHandler,
     ContextTypes,
     filters,
 )
@@ -37,7 +37,7 @@ async def group_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Channel Post စာသားများအတွက် စစ်ဆေးခြင်း
+    # ချန်နယ်ထဲမှာ ပို့စ်အသစ်တင်တိုင်း Reaction ပေးရန် စစ်ဆေးခြင်း
     if update.channel_post:
         await react_to_message(
             update.channel_post.chat_id,
@@ -52,7 +52,7 @@ def main():
 
     app = Application.builder().token(BOT_TOKEN).build()
 
-    # Group / Supergroup ဟန့်တားချက်နှင့် မက်ဆေ့ခ်ျများအတွက်
+    # Group / Supergroup အတွက်
     app.add_handler(
         MessageHandler(
             filters.ALL & ~filters.StatusUpdate.ALL,
@@ -60,10 +60,10 @@ def main():
         )
     )
 
-    # Channel Post များကို ဖမ်းယူရန်အတွက် ဤနေရာတွင် MessageHandler ပြောင်းလဲအသုံးပြုထားပါသည်
+    # 🌟 ချန်နယ်ပို့စ်များကို သေချာပေါက်ဖတ်နိုင်ရန် UpdateType ကိုပါ ထည့်သွင်းပြင်ဆင်ထားပါသည်
     app.add_handler(
         MessageHandler(
-            filters.ChatType.CHANNEL,
+            filters.ChatType.CHANNEL | filters.UpdateType.CHANNEL_POST,
             channel_post,
         )
     )
