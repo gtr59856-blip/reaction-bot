@@ -1,7 +1,7 @@
 import os
 import random
 
-from telegram import Update, ReactionTypeCustomEmoji
+from telegram import Update, ReactionTypeCustomEmoji  # Custom Emoji အတွက်
 from telegram.ext import (
     Application,
     MessageHandler,
@@ -9,9 +9,10 @@ from telegram.ext import (
     filters,
 )
 
-BOT_TOKEN = os.getenv("8786728145:AAHRbZUREiX5prYxMrx7yl-AycyA95p2xH0")
+BOT_TOKEN = "8802266198:AAHmzywZuGKt2XjVt_BqckEfrYKkQoIsLE8"
 
-CUSTOM_EMOJI_IDS = [
+# 🌟 သင်ပေးပို့ထားသော ပရီမီယံ အီမိုဂျီ ID များကို မှန်ကန်စွာ ထည့်သွင်းပေးထားပါသည်
+PREMIUM_EMOJIS = [
     "6140769030924932147",
     "6181216743701090479",
     "6141064297041631233",
@@ -23,31 +24,36 @@ CUSTOM_EMOJI_IDS = [
 ]
 
 
-async def react_to_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    message = update.effective_message
-
-    if not message:
-        return
-
-    custom_emoji_id = random.choice(CUSTOM_EMOJI_IDS)
+async def react_to_message(chat_id, message_id, context):
+    chosen_emoji_id = random.choice(PREMIUM_EMOJIS)
 
     try:
         await context.bot.set_message_reaction(
-            chat_id=message.chat_id,
-            message_id=message.message_id,
-            reaction=[
-                ReactionTypeCustomEmoji(
-                    custom_emoji_id=custom_emoji_id
-                )
-            ],
+            chat_id=chat_id,
+            message_id=message_id,
+            # ReactionTypeCustomEmoji ဖြင့် ပရီမီယံအီမိုဂျီ ID ကို ပို့ပေးခြင်း
+            reaction=[ReactionTypeCustomEmoji(custom_emoji_id=chosen_emoji_id)],
         )
-
-        print(
-            f"Custom Emoji Reaction: {custom_emoji_id}"
-        )
-
     except Exception as e:
         print(f"Reaction error: {e}")
+
+
+async def group_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message:
+        await react_to_message(
+            update.message.chat_id,
+            update.message.message_id,
+            context,
+        )
+
+
+async def channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.channel_post:
+        await react_to_message(
+            update.channel_post.chat_id,
+            update.channel_post.message_id,
+            context,
+        )
 
 
 def main():
@@ -56,26 +62,27 @@ def main():
 
     app = Application.builder().token(BOT_TOKEN).build()
 
-    # Group / Supergroup
+    # 1. Group / Supergroup ဟန်းဒလာ
     app.add_handler(
         MessageHandler(
-            filters.UpdateType.MESSAGES,
-            react_to_message,
+            filters.ALL & ~filters.StatusUpdate.ALL,
+            group_message,
         )
     )
 
-    # Channel Posts
+    # 2. Channel ပို့စ်များအတွက် ဟန်းဒလာ
     app.add_handler(
         MessageHandler(
-            filters.UpdateType.CHANNEL_POSTS,
-            react_to_message,
+            filters.UpdateType.CHANNEL_POST,
+            channel_post,
         )
     )
 
-    print("Custom Emoji Reaction Bot is running...")
+    print("Premium Reaction Bot is running...")
 
     app.run_polling(
-        allowed_updates=["message", "channel_post"]
+        allowed_updates=["message", "channel_post"],
+        drop_pending_updates=True
     )
 
 
