@@ -4,13 +4,11 @@ import random
 from telegram import Update, ReactionTypeEmoji
 from telegram.ext import (
     Application,
-    MessageHandler,
-    ChannelPostHandler,
+    MessageHandler,  # ChannelPostHandler အစား ဤနေရာတွင် MessageHandler ကိုပဲ သုံးပါမည်
     ContextTypes,
     filters,
 )
 
-# os.getenv() အစား Token ကုဒ်ကို တိုက်ရိုက် စာသား (String) အဖြစ် မှန်ကန်စွာ ပြင်ဆင်ထားပါသည်
 BOT_TOKEN = "8936841134:AAHPjQQrq_cu-nK61kZvPbyQf2RPh9WcL0g"
 
 REACTIONS = ["👍", "❤️", "🔥", "🥰", "👏", "😁", "🎉"]
@@ -39,6 +37,7 @@ async def group_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Channel Post စာသားများအတွက် စစ်ဆေးခြင်း
     if update.channel_post:
         await react_to_message(
             update.channel_post.chat_id,
@@ -53,7 +52,7 @@ def main():
 
     app = Application.builder().token(BOT_TOKEN).build()
 
-    # Group / Supergroup
+    # Group / Supergroup ဟန့်တားချက်နှင့် မက်ဆေ့ခ်ျများအတွက်
     app.add_handler(
         MessageHandler(
             filters.ALL & ~filters.StatusUpdate.ALL,
@@ -61,9 +60,12 @@ def main():
         )
     )
 
-    # Channel
+    # Channel Post များကို ဖမ်းယူရန်အတွက် ဤနေရာတွင် MessageHandler ပြောင်းလဲအသုံးပြုထားပါသည်
     app.add_handler(
-        ChannelPostHandler(channel_post)
+        MessageHandler(
+            filters.ChatType.CHANNEL,
+            channel_post,
+        )
     )
 
     print("Reaction Bot is running...")
